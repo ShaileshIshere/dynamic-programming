@@ -76,13 +76,99 @@ int spaceOptimized(vector<int> &v) {
 }
 // calling function
 int rob(vector<int>& nums) {
-    // return solve(nums, 0);
+    return solve(nums, 0);
     
     // // step 1: create a [dp] array/vector
-    // vector<int> dp(nums.size(), -1);
-    // return topDown(nums, 0, dp);
+    vector<int> dp(nums.size(), -1);
+    return topDown(nums, 0, dp);
 
     return bottomUp(nums, 0);
+}
+
+// coin change
+// recursive approach
+int recursion(vector<int> &v, int x) {
+    // base case
+    if(x == 0)
+        return 0;
+    // recursive relation
+    int mini = INT_MAX;
+    for(int i=0; i<v.size(); ++i) {
+        if(x - v[i] >= 0) {
+            int recAns = recursion(v, x - v[i]);
+            if(recAns != INT_MAX) {
+                int ans = 1 + recAns;
+                mini = min(mini, ans);
+            }
+        }
+    }
+    return mini;
+}
+
+// top down approach
+int topDown(vector<int> &v, int x, vector<int> &dp) {
+    // base case
+    if(x == 0)
+        return 0;
+
+    // step 3: check if any element is already present in [dp] array
+    if(dp[x] != -1)
+        return dp[x];
+    
+    // step 2: calculate new solutions and insert them in [dp] array
+    int mini = INT_MAX;
+    for(int i=0; i<v.size(); ++i) {
+        if(x - v[i] >= 0) {
+            int recAns = topDown(v, x - v[i], dp);
+            if(recAns != INT_MAX) {
+                int ans = 1 + recAns;
+                mini = min(mini, ans);
+            }
+        }
+    }
+    // return the index that contains the final [ans]
+    dp[x] = mini;
+    return dp[x];
+}
+
+// bottom up approach
+int bottomUp(vector<int> &v, int x) {
+    // step 1: create a dp array
+    vector<int> dp(x + 1, -1);
+
+    // step 2: initialize our first solution manually
+    dp[0] = 0;
+
+    // step 3: calculate the remaining solutions iteratively
+    for(int value = 1; value <= x; ++value) {
+        int mini = INT_MAX;
+        for(int i = 0; i < v.size(); ++i) {
+            if(value - v[i] >= 0) {
+                int recAns = dp[value - v[i]];
+                if(recAns != INT_MAX) {
+                    int ans = 1 + recAns;
+                    mini = min(mini, ans);
+                }
+            }
+        }
+        dp[value] = mini;
+    }
+    return dp[x];
+}
+// calling function
+int coinChange(vector<int> &coins, int amount) {
+    int ans = recursion(coins, amount);
+
+    // step 1: create a [dp] array
+    vector<int> dp(amount+1, -1);
+    int ans = topDown(coins, amount, dp);
+
+    int ans = bottomUp(coins, amount);
+
+    if(ans == INT_MAX)
+        return -1;
+    else 
+        return ans;
 }
 
 int main() {
@@ -94,6 +180,16 @@ int main() {
     for(int i=0; i<n; ++i)
         cin >> nums[i];
     cout << "the maximum amount of stolen money : " << rob(nums) << endl;
+
+    int n, amount;
+    cout << "enter the size of vector : ";
+    cin >> n;
+    vector<int> coins(n);
+    for(int i=0; i<n; ++i)
+        cin >> coins[i];
+    cout << "enter the amount you need from the given coins : ";
+    cin >> amount;
+    cout << "amount will be obtained after the usage of [" << coinChange(coins, amount) << "] coins " << endl;
 
     return 0;
 }
