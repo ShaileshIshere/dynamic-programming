@@ -148,9 +148,41 @@ int bottomUp(int w, int n, vector<int> &val, vector<int> &wt) {
 }
 
 // space optimized
-// int spaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
-//     int 
-// }
+int spaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
+    vector<int> curr(w+1, -1);
+    vector<int> next(w+1, -1);
+
+    for(int row = 0; row <= w; ++row)
+        next[row] = 0;
+    
+    for(int j=n-1; j>=0; --j) {
+        for(int i=0; i<=w; ++i) {
+            int include = 0;
+            if(wt[j] <= i)
+                include = val[j] + next[i - wt[j]];
+            int exclude = next[i];
+            curr[i] = max(include, exclude);
+        }
+        next = curr;
+    }
+    return curr[w];
+}
+
+// more space optimized
+int moreSpaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
+    vector<int> next(w+1, -1);
+
+    for(int j=n-1; j>=0; --j) {
+        for(int i=w; i>=0; --i) {
+            int include = 0;
+            if(wt[j] <= i)
+                include = val[j] + next[i - wt[j]];
+            int exclude = next[i];
+            next[i] = max(include, exclude);
+        }
+    }
+    return next[w];
+}
 int knap_sack(int w, int n, vector<int> &values, vector<int> &weights) {
     // return recursion(w, n, 0, values, weights);
 
@@ -158,6 +190,10 @@ int knap_sack(int w, int n, vector<int> &values, vector<int> &weights) {
     // return topDown(w, n, 0, values, weights, dp);
 
     return bottomUp(w, n, values, weights);
+
+    // return spaceOptimized(w, n, values, weights);
+
+    // return moreSpaceOptimized(w, n, values, weights);
 }
 
 int main() {
