@@ -128,7 +128,7 @@ int topDown(int w, int n, int index, vector<int> &val, vector<int> &wt, vector<v
 // bottom up approach
 int bottomUp(int w, int n, vector<int> &val, vector<int> &wt) {
     // create a 2D vector/array 
-    vector<vector<int>> dp(w+1, vector<int>(n+1));
+    vector<vector<int>> dp(w+1, vector<int>(n+1, -1));
 
     // initialize starting varable manually
     for(int row = 0; row <= w; ++row)
@@ -145,6 +145,7 @@ int bottomUp(int w, int n, vector<int> &val, vector<int> &wt) {
             dp[i][j] = max(include, exclude);
         }
     }
+    print_dp(dp);
     return dp[w][0];
 }
 
