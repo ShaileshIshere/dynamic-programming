@@ -4,68 +4,69 @@ using namespace std;
 
 // painting fence algorithm
 // recursive approach
-// int recursion(int n, int k) {
-//     if(n == 1)
-//         return k;
-//     if(n == 2)
-//         return k + (k*(k - 1));
-//     return (k - 1) * (recursion(n - 1, k) + recursion(n - 2, k));
-// }
+int recursion(int n, int k) {
+    if(n == 1)
+        return k;
+    if(n == 2)
+        return k + (k*(k - 1));
+    return (k - 1) * (recursion(n - 1, k) + recursion(n - 2, k));
+}
 
-// // top down approach
-// int topDown(int n, int k, vector<int> &dp) {
-//     if(n == 1)
-//         return k;
-//     if(n == 2)
-//         return k + (k*(k - 1));
-//     // if solution already exists then return from here
-//     if(dp[n] != -1)
-//         return dp[n];
-//     // if not then solve it here and insert in [dp]
-//     dp[n] = (k - 1) * (topDown(n - 1, k, dp) + topDown(n - 2, k, dp));
-//     return dp[n];
-// }
+// top down approach
+int topDown(int n, int k, vector<int> &dp) {
+    if(n == 1)
+        return k;
+    if(n == 2)
+        return k + (k*(k - 1));
+    // if solution already exists then return from here
+    if(dp[n] != -1)
+        return dp[n];
+    // if not then solve it here and insert in [dp]
+    dp[n] = (k - 1) * (topDown(n - 1, k, dp) + topDown(n - 2, k, dp));
+    return dp[n];
+}
 
-// // bottom up approach
-// int bottomUp(int n, int k) {
-//     vector<int> dp(n+1, -1);
-//     // initialize the base variables manually
-//     dp[1] = k;
-//     dp[2] = k + k*(k-1);
-//     // calculate the rest of the variables
-//     for(int i=3; i<=n; ++i) 
-//         dp[i] = (k - 1) * (dp[i - 1] + dp[i - 2]);
-//     return dp[n];
-// }
+// bottom up approach
+int bottomUp(int n, int k) {
+    vector<int> dp(n+1, -1);
+    // initialize the base variables manually
+    dp[1] = k;
+    dp[2] = k + k*(k-1);
+    // calculate the rest of the variables
+    for(int i=3; i<=n; ++i) 
+        dp[i] = (k - 1) * (dp[i - 1] + dp[i - 2]);
+    return dp[n];
+}
 
-// // space optimized
-// int spaceOptimized(int n, int k) {
-//     int prev = k;
-//     // edge case
-//     if(n == 1)
-//         return prev;
-//     int curr = k + k*(k-1);
-//     int next;
-//     for(int i=3; i<=n; ++i) {
-//         next = (k-1 ) * (prev + curr);
-//         // update values of both pointers
-//         prev = curr;
-//         curr = next;
-//     }
-//     return curr;
-// }
-// int painting_fence(int posts, int colors) {
-//     int n = posts, k = colors;
+// space optimized
+int spaceOptimized(int n, int k) {
+    int prev = k;
+    // edge case
+    if(n == 1)
+        return prev;
+    int curr = k + k*(k-1);
+    int next;
+    for(int i=3; i<=n; ++i) {
+        next = (k-1 ) * (prev + curr);
+        // update values of both pointers
+        prev = curr;
+        curr = next;
+    }
+    return curr;
+}
 
-//     // return recursion(n, k);
+int painting_fence(int posts, int colors) {
+    int n = posts, k = colors;
 
-//     // vector<int> dp(n+1, -1);
-//     // return topDown(n, k, dp);
+    return recursion(n, k);
 
-//     // return bottomUp(n, k);
+    vector<int> dp(n+1, -1);
+    return topDown(n, k, dp);
 
-//     return spaceOptimized(n, k);
-// }
+    return bottomUp(n, k);
+
+    return spaceOptimized(n, k);
+}
 
 // 0/1 knapsack problem => 2D [dp]
 // recursion
@@ -149,12 +150,16 @@ int bottomUp(int w, int n, vector<int> &val, vector<int> &wt) {
 
 // space optimized
 int spaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
+    /*create two 1D vectors and from the combinations of
+    these two vectors we can form the ans of upcomming answers*/
     vector<int> curr(w+1, -1);
     vector<int> next(w+1, -1);
 
+    // set the [next] values to [0] so that we can form answers of [curr] vector
     for(int row = 0; row <= w; ++row)
         next[row] = 0;
     
+    // form the remaining answers
     for(int j=n-1; j>=0; --j) {
         for(int i=0; i<=w; ++i) {
             int include = 0;
@@ -163,6 +168,7 @@ int spaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
             int exclude = next[i];
             curr[i] = max(include, exclude);
         }
+        // update values
         next = curr;
     }
     return curr[w];
@@ -170,8 +176,10 @@ int spaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
 
 // more space optimized
 int moreSpaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
-    vector<int> next(w+1, -1);
+    // create only a single 1D vector
+    vector<int> next(w+1, 0);
 
+    // calculate solutions and store them in previously created vector
     for(int j=n-1; j>=0; --j) {
         for(int i=w; i>=0; --i) {
             int include = 0;
@@ -183,25 +191,26 @@ int moreSpaceOptimized(int w, int n, vector<int> &val, vector<int> &wt) {
     }
     return next[w];
 }
-int knap_sack(int w, int n, vector<int> &values, vector<int> &weights) {
-    // return recursion(w, n, 0, values, weights);
 
-    // vector<vector<int>> dp(w+1, vector<int>(n+1, -1));
-    // return topDown(w, n, 0, values, weights, dp);
+int knap_sack(int w, int n, vector<int> &values, vector<int> &weights) {
+    return recursion(w, n, 0, values, weights);
+
+    vector<vector<int>> dp(w+1, vector<int>(n+1, -1));
+    return topDown(w, n, 0, values, weights, dp);
 
     return bottomUp(w, n, values, weights);
 
-    // return spaceOptimized(w, n, values, weights);
+    return spaceOptimized(w, n, values, weights);
 
-    // return moreSpaceOptimized(w, n, values, weights);
+    return moreSpaceOptimized(w, n, values, weights);
 }
 
 int main() {
 
-    // int posts, colors;
-    // cout << "enter the number of [posts] and [colors] : ";
-    // cin >> posts >> colors;
-    // cout << "total no. of ways to color posts are : " << painting_fence(posts, colors) << endl;
+    int posts, colors;
+    cout << "enter the number of [posts] and [colors] : ";
+    cin >> posts >> colors;
+    cout << "total no. of ways to color posts are : " << painting_fence(posts, colors) << endl;
 
     int w, n;
     cout << "enter the size of capacity of knapsack and size of vectors : ";
