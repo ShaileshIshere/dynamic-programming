@@ -120,10 +120,13 @@ int longest_palindromic_subsequence(string &s) {
 // edit distance
 // recursion solution
 int recursion(string &a, int i, string &b, int j) {
+    // base cases
     if(i == a.length())
         return b.length()-j;
     if(j == b.length())
         return a.length()-i;
+
+    // recursive solution
     int ans=0;
     if(a[i] == b[j])
         ans = recursion(a, i+1, b, j+1);
@@ -136,21 +139,115 @@ int recursion(string &a, int i, string &b, int j) {
     return ans;
 }
 
+// top down solution
+int topDown(string &a, int i, string &b, int j, vector<vector<int>> &dp) {
+    // base cases
+    if(i == a.length())
+        return b.length()-j;
+    if(j == b.length())
+        return a.length()-i;
+
+    // check if any case is already solved
+    if(dp[i][j] != -1)
+        return dp[i][j];
+
+    // solving cases that occurs first time
+    if(a[i] == b[j])
+        dp[i][j] = topDown(a, i+1, b, j+1, dp);
+    else {
+        int replace = 1 + topDown(a, i+1, b, j+1, dp);
+        int insert = 1 + topDown(a, i, b, j+1, dp);
+        int remove = 1 + topDown(a, i+1, b, j, dp);
+        dp[i][j] = min(replace, min(insert, remove));
+    }
+    return dp[i][j];
+}
+
+// bottom up solution
+int bottomUp(string &a, string &b) {
+    // create a 2D [dp] array, so that we can store [ans]
+    int n=a.length(), m=b.length();
+    vector<vector<int>> dp(n+1, vector<int>(m+1, -1));
+
+    // manually solve the first/base case
+    for(int col=0; col<=m; ++col)
+        dp[n][col] = m-col;
+    for(int row=0; row<=n; ++row)
+        dp[row][m] = n-row;
+
+    // solve the reamining cases
+    for(int i=n-1; i>=0; --i) {
+        for(int j=m-1; j>=0; --j) {
+            if(a[i] == b[j])
+                dp[i][j] = dp[i+1][j+1];
+            else {
+                int replace = 1 + dp[i+1][j+1];
+                int insert = 1 + dp[i][j+1];
+                int remove = 1 + dp[i+1][j];
+                dp[i][j] = min(replace, min(insert, remove));
+            }
+        }
+    }
+    return dp[0][0];
+}
+
+// space optimized
+int spaceOptimized(string &a, string &b) {
+    // create 2 [1D vectors] of same size
+    int n=a.length(), m=b.length();
+    vector<int> curr(n+1, 0);
+    vector<int> next(n+1, 0);
+
+    // fill up one of them (vector) with the base value
+    for(int i=0; i<=n; ++i)
+        next[i] = n - i;
+
+    // solve the reamining cases
+    for(int j=m-1; j>=0; --j) {
+        // crucial step
+        curr[n] = m-j;
+        for(int i=n-1; i>=0; --i) {
+            if(a[i] == b[j])
+                curr[i] = next[i+1];
+            else {
+                int replace = 1 + next[i+1];
+                int insert = 1 + next[i];
+                int remove = 1 + curr[i+1];
+                curr[i] = min(replace, min(insert, remove));
+            }
+        }
+        next = curr;
+    }
+    return next[0];
+}
+
 int edit_distance(string &word1, string &word2) {
     return recursion(word1, 0, word2, 0);
+
+    vector<vector<int>> dp(word1.length(), vector<int>(word2.length(), -1));
+    return topDown(word1, 0, word2, 0, dp);
+
+    return bottomUp(word1, word2);
+
+    return spaceOptimized(word1, word2);
 }
 
 int main() {
 
-    // string text1, text2;
-    // cout << "enter two distinct strings : ";
-    // cin >> text1 >> text2;
-    // cout << "length of longest common subsequence : " << longestSubsequence(text1, text2) << endl;
+    string text1, text2;
+    cout << "enter two distinct strings : ";
+    cin >> text1 >> text2;
+    cout << "length of longest common subsequence : " << longestSubsequence(text1, text2) << endl;
 
-    // string s;
-    // cout << "enter string : ";
-    // cin >> s;
-    // cout << "length of longest palindromic subsequence : " << longest_palindromic_subsequence(s) << endl;
+    string s;
+    cout << "enter string : ";
+    cin >> s;
+    cout << "length of longest palindromic subsequence : " << longest_palindromic_subsequence(s) << endl;
+
+    string word1, word2;
+    cout << "enter two distinct strings : ";
+    cin >> word1 >> word2;
+    cout << "min no. of operation performed to convert " << word1 << " into => " << word2 << " are : " << edit_distance(word1, word2) << endl;
      
     return 0;
 }
