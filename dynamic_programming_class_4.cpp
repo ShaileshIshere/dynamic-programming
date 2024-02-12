@@ -160,6 +160,7 @@ int topDown(string &a, int i, string &b, int j, vector<vector<int>> &dp) {
         int remove = 1 + topDown(a, i+1, b, j, dp);
         dp[i][j] = min(replace, min(insert, remove));
     }
+    // print_2D_dp(dp);
     return dp[i][j];
 }
 
@@ -187,6 +188,7 @@ int bottomUp(string &a, string &b) {
                 dp[i][j] = min(replace, min(insert, remove));
             }
         }
+        // print_2D_dp(dp);
     }
     return dp[0][0];
 }
