@@ -67,22 +67,55 @@ int bottomUp(vector<int> &v) {
 
 // space optimized
 int spaceOptimized(vector<int> &v) {
-    // create 2 1D arrays
-    vector<int> prev(v.size()+1, 0);
-    vector<int> curr(v.size()+1, 0);
+    // create 2 1D vectors
+    vector<int> nextRow(v.size()+1, 0);
+    vector<int> currRow(v.size()+1, 0);
 
-    // inserting in [curr] with the help of [prev]
-    for(int prev = curr-1; prev >= -1; --prev) {
-        for(int curr = v.size()-1; curr >= 0; --curr) {
-            int include = 0;
+    // insert elements in [currRow] with the help of [nextRow]
+    for(int curr = v.size()-1; curr >= 0; --curr) {
+        for(int prev = curr-1; prev >= -1; --prev) {
+            int include=0; 
             if(prev == -1 || v[curr] > v[prev])
-                include = 1 + curr[curr+1];
-            int exclude = curr[prev+1];
-            prev[curr] = max(include, exclude);
+                include = 1 + nextRow[curr+1];
+            int exclude = nextRow[prev+1];
+            currRow[prev+1] = max(include, exclude);
         }
-        curr = prev;
+        nextRow = currRow;
     }
-    return curr[0];
+    return nextRow[0];
+}
+
+// more space optimized
+int moreSpaceOptimized(vector<int> &v) {
+    // create a 1D vector
+    vector<int> temp(v.size()+1, 0);
+
+    // insert values in this vector
+    for(int curr = v.size()-1; curr >= 0; --curr) {
+        for(int prev = curr-1; prev >= -1; --prev) {
+            int include=0; 
+            if(prev == -1 || v[curr] > v[prev])
+                include = 1 + temp[curr+1];
+            int exclude = temp[prev+1];
+            temp[prev+1] = max(include, exclude);
+        }
+    }
+    return temp[0];
+}
+
+// optimal approach => using binary search
+int binarySearch(vector<int> &v) {
+    vector<int> ans;
+    ans.push_back(v[0]);
+    for(int i=1; i<v.size(); ++i) {
+        if(v[i] > ans.back())
+            ans.push_back(v[i]);
+        else {
+            int index = lower_bound(ans.begin(), ans.end(), v[i]) - ans.begin();
+            ans[index] = v[i];
+        }
+    }
+    return ans.size();
 }
 
 int longest_inc_subseq(vector<int> &v) {
@@ -93,18 +126,97 @@ int longest_inc_subseq(vector<int> &v) {
 
     // return bottomUp(v);
 
-    return spaceOptimized(v);
+    // return spaceOptimized(v);
+
+    // return moreSpaceOptimized(v);
+
+    return binarySearch(v);
+}
+
+// maximum height by stacking cuboids
+bool check(vector<int> &curr, vector<int> &prev) {
+    if(prev[0] <= curr[0] && prev[1] <= curr[1] && prev[2] <= curr[2])
+        return true;
+    else
+        return false;
+}
+int solveUsingTab(vector<vector<int>> &v) {
+    // create a 1D vector
+    vector<int> temp(v.size()+1, 0);
+
+    // insert values in this vector
+    for(int curr = v.size()-1; curr >= 0; --curr) {
+        for(int prev = curr-1; prev >= -1; --prev) {
+            int include=0; 
+            if(prev == -1 || (check(v[curr], v[prev])))
+                include = v[curr][2] + temp[curr+1];
+            int exclude = temp[prev+1];
+            temp[prev+1] = max(include, exclude);
+        }
+    }
+    return temp[0];
+}
+int maxHeight(vector<vector<int>> &cuboids) {
+    for(auto &cuboid : cuboids)
+        sort(cuboid.begin(), cuboid.end());
+    sort(cuboids.begin(), cuboids.end());
+    return solveUsingTab(cuboids);
+}
+
+// russian doll envelopes
+static bool comp(vector<int> &a, vector<int> &b) {
+    if(a[0] == b[0])
+        return a[1] > b[1];
+    return a[0] < b[0];
+}
+int maxEnvelopes(vector<vector<int>> &envelopes) {
+    sort(envelopes.begin(), envelopes.end(), comp);
+    if(envelopes.size() == 0)
+        return 0;
+    vector<int> ans;
+    ans.push_back(envelopes[0][1]);
+    for(int i=1; i<envelopes.size(); ++i) {
+        if(envelopes[i][1] > ans.back())
+            ans.push_back(envelopes[i][1]);
+        else {
+            int index = lower_bound(ans.begin(), ans.end(), envelopes[i][1]) - ans.begin();
+            ans[index] = envelopes[i][1];
+        }
+    }
+    return ans.size();
 }
 
 int main() {
 
-    int n;
-    cout << "enter size : ";
+    // int n;
+    // cout << "enter size : ";
+    // cin >> n;
+    // vector<int> nums(n);
+    // for(int i=0; i<n; ++i)
+    //     cin >> nums[i];
+    // cout << "longest increasing subsequence : " << longest_inc_subseq(nums) << endl;
+
+    // int n, m=2;
+    // cout << "ener the no. of cuboids : ";
+    // cin >> n;
+    // vector<vector<int>> cuboids(n, vector<int>(m));
+    // for(int i=0; i<n; ++i) {
+    //     cout << "enter " << i+1 << " cuboid's dimension :" << endl;
+    //     for(int j=0; j<m; ++j)
+    //         cin >> cuboids[i][j];
+    // }
+    // cout << "maximum height by stacking cuboids : " << maxHeight(cuboids) << endl;
+
+    int n, m=1;
+    cout << "enter the no. of envelopes : ";
     cin >> n;
-    vector<int> nums(n);
-    for(int i=0; i<n; ++i)
-        cin >> nums[i];
-    cout << "longest increasing subsequence : " << longest_inc_subseq(nums) << endl;
+    vector<vector<int>> envelopes(n, vector<int>(m));
+    for(int i=0; i<n; ++i) {
+        cout << "enter the " << i+1 << "th envelop :" << endl;
+        for(int j=0; j<m; ++j)
+            cin >> envelopes[i][j];
+    }
+    cout << "maximum no. of envelopes we can russian doll : " << maxEnvelopes(envelopes) << endl;
      
     return 0;
 }

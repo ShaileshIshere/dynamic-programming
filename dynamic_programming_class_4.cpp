@@ -72,8 +72,8 @@ int bottomUp(string &a, string &b) {
     return dp[0][0];
 }
 
-// space optimized
-int spaceOptimized(string &a, string &b) {
+// space optimized => col wise solution
+int spaceOptimizedCol(string &a, string &b) {
     // create two vectors on the base of which we've to calculate final ans
     vector<int> curr(a.length()+1, 0);
     vector<int> next(a.length()+1, 0);
@@ -94,6 +94,28 @@ int spaceOptimized(string &a, string &b) {
     return next[0];
 }
 
+// space optimized => row wise solution
+int spaceOptimizedRow(string &a, string &b) {
+    // create two vectors on the base of which we've to calculate final ans
+    vector<int> curr(a.length()+1, 0);
+    vector<int> next(a.length()+1, 0);
+
+    // we're calculating ans row wise that's why we've swaped variables(i, j) inside the loop
+    for(int i=a.length()-1; i>=0; --i) {
+        for(int j=b.length()-1; j>=0; --j) { 
+            int ans=0;
+            if(a[i] == b[j])
+                ans = 1 + next[j+1];
+            else 
+                ans = max(next[j], curr[j+1]);
+            curr[j] = ans;
+        }
+        // update the next vector
+        next = curr;
+    }
+    return next[0];
+}
+
 int longestSubsequence(string &text1, string &text2) {
     return recursion(text1, 0, text2, 0);
 
@@ -102,7 +124,9 @@ int longestSubsequence(string &text1, string &text2) {
 
     return bottomUp(text1, text2);
 
-    return spaceOptimized(text1, text2);
+    return spaceOptimizedCol(text1, text2);
+
+    return spaceOptimizedRow(text1, text2);
 }
 
 // longest palindromic subsequence
