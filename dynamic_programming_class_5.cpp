@@ -119,16 +119,16 @@ int binarySearch(vector<int> &v) {
 }
 
 int longest_inc_subseq(vector<int> &v) {
-    // return recursion(v, -1, 0);
+    return recursion(v, -1, 0);
 
-    // vector<vector<int>> dp(v.size()+1, vector<int>(v.size()+1, -1));
-    // return topDown(v, -1, 0, dp);
+    vector<vector<int>> dp(v.size()+1, vector<int>(v.size()+1, -1));
+    return topDown(v, -1, 0, dp);
 
-    // return bottomUp(v);
+    return bottomUp(v);
 
-    // return spaceOptimized(v);
+    return spaceOptimized(v);
 
-    // return moreSpaceOptimized(v);
+    return moreSpaceOptimized(v);
 
     return binarySearch(v);
 }
@@ -180,34 +180,37 @@ int maxEnvelopes(vector<vector<int>> &envelopes) {
             ans.push_back(envelopes[i][1]);
         else {
             int index = lower_bound(ans.begin(), ans.end(), envelopes[i][1]) - ans.begin();
+            // cout << "index : " << index << endl;
             ans[index] = envelopes[i][1];
         }
     }
+    // for(auto a : ans)
+    //     cout << a << " ";
     return ans.size();
 }
 
 int main() {
 
-    // int n;
-    // cout << "enter size : ";
-    // cin >> n;
-    // vector<int> nums(n);
-    // for(int i=0; i<n; ++i)
-    //     cin >> nums[i];
-    // cout << "longest increasing subsequence : " << longest_inc_subseq(nums) << endl;
+    int n;
+    cout << "enter size : ";
+    cin >> n;
+    vector<int> nums(n);
+    for(int i=0; i<n; ++i)
+        cin >> nums[i];
+    cout << "longest increasing subsequence : " << longest_inc_subseq(nums) << endl;
 
-    // int n, m=2;
-    // cout << "ener the no. of cuboids : ";
-    // cin >> n;
-    // vector<vector<int>> cuboids(n, vector<int>(m));
-    // for(int i=0; i<n; ++i) {
-    //     cout << "enter " << i+1 << " cuboid's dimension :" << endl;
-    //     for(int j=0; j<m; ++j)
-    //         cin >> cuboids[i][j];
-    // }
-    // cout << "maximum height by stacking cuboids : " << maxHeight(cuboids) << endl;
+    int n, m=3;
+    cout << "ener the no. of cuboids : ";
+    cin >> n;
+    vector<vector<int>> cuboids(n, vector<int>(m));
+    for(int i=0; i<n; ++i) {
+        cout << "enter " << i+1 << " cuboid's dimension :" << endl;
+        for(int j=0; j<m; ++j)
+            cin >> cuboids[i][j];
+    }
+    cout << "maximum height by stacking cuboids : " << maxHeight(cuboids) << endl;
 
-    int n, m=1;
+    int n, m=2;
     cout << "enter the no. of envelopes : ";
     cin >> n;
     vector<vector<int>> envelopes(n, vector<int>(m));
